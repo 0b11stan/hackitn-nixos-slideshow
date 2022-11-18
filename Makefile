@@ -10,11 +10,12 @@ build:
 	$(CTRTECH) build -t $(CTRNAME) .
 
 run:
-	$(CTRTECH) run -it \
+	$(CTRTECH) run \
 		--name $(CTRNAME) \
-		--publish $(PORT):8000 \
+		--publish $(PORT):$(PORT) \
+		--env PORT=$(PORT) \
 		--volume "$(PWD)/dist/:/root/reveal.js/dist/custom/:ro" \
-		$(CTRNAME) /bin/sh -c 'npm start -- --port=8000 --host=0.0.0.0'
+		$(CTRNAME)
 
 shell:
 	$(CTRTECH) exec -it $(CTRNAME) /bin/sh

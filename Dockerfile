@@ -1,5 +1,7 @@
 FROM alpine
 
+ENV PORT=8000
+
 WORKDIR /root
 
 RUN apk add git nodejs npm
@@ -10,3 +12,5 @@ COPY dist/ /root/reveal.js/dist/
 
 WORKDIR /root/reveal.js
 RUN npm install
+
+CMD ["/usr/bin/npm", "start", "--", "--port=$PORT", "--host=0.0.0.0"]
