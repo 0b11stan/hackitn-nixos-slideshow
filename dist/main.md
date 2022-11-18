@@ -335,4 +335,4 @@ Parler du rollback, de la sécu
 ---
 <!-- .slide: data-background="#ffffff" -->
 
-![](dist/custom/hackitnix.jpg)
+![](dist/custom/hackitnix.png)
