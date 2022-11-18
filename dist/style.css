@@ -1,0 +1,31 @@
+#capgemini-spade-logo {
+  width: 100px;
+  position: fixed;
+  top: 40px;
+  right: 40px;
+}
+
+.overline {
+  text-decoration: line-through;
+  text-decoration-color: darkred;
+}
+
+.redify {
+  color: darkred;
+}
+
+.highlight {
+  color: #12abdb;
+  font-weight: bold;
+}
+
+.column {
+  display: inline-block;
+  width: 49%;
+  margin: 0 !important;
+}
+
+img {
+  max-height: 500px !important;
+}
+
