@@ -3,15 +3,33 @@
 
 _Tristan Pinaudeau @ <span class="highlight">Capgemini</span>_
 
+NOTES:
+
+* prochaine demi-heure
+* distribution linux pas comme les autres
+* n'était pas clair: NIXOS.
+
+questions pour curiosité :
+
+* qui à déjà entendu parlé de nixos ?
+* qui l'a déjà essayé ?
+* qui l'as mis en production ?
+
 ---
 
 ## Présentation
 
-
-* <span class="highlight">SRE</span> à Cdiscount
-* <span class="highlight">PENTESTER</span> à Capgemini
+- <span class="highlight">SRE</span> à Cdiscount
+- <span class="highlight">PENTESTER</span> à Capgemini
 
 NOTES:
+
+* m'appelle tristan pinaudeau
+* mon premier job => ingénieur SRE => Cdiscount
+  - attrappé le virus de l'automatisation et du "tout as code".
+* métier de passion => pentester à capgemini
+* attrait pour nixos => croisement de ces deux expériences
+* allez très vite comprendre pourquoi
 
 ---
 
@@ -19,7 +37,14 @@ NOTES:
 
 NOTES:
 
-exposer le plan
+* expliquer nixos en 30 minutes => ambitieux
+* objectif principale => vous tester par vous même
+* mon plan
+    - problèmes techniques dans sécurité systèmes
+    - rudiment du systèm => distribution différente
+    - avec ces infos => cas pratique
+    - extrait de code > 1000 mots => à quoi ressemble projet
+    - synthèse => conceptes s'articuler pour niveau sécurité rare
 
 --
 
@@ -33,6 +58,37 @@ exposer le plan
 
 NOTES:
 
+* cartographie
+  - premier car important
+  - problème de visibilité
+  - quelles machines sont déployés
+  - avec quelle configuration
+  - qu'est-ce qui tourne dessus ?
+* entropie des configurations
+  - dans SI un peu mature
+  - autant de configuration différentes que machine
+  - admin => habitudes
+    * packet avec pip
+    * extraire tar dans /opt
+    * j'en passe et des meilleurs.
+  - ont à besoin de normalisation
+* patchs
+  - comme configs toutes différentes
+  - appliquer patch = enfer
+  - introduit des incompatibilité ?
+  - versions de logiciels ?
+  - freins à la bonne gestion
+* obscure
+  - incroyablement difficiles à auditer
+  - accomoder au file du temps
+  - seuls possibles
+    * commenter schéma d'architecture pas à jour
+    * faire des tests d'intrusion => aucune garantie
+* automatisation
+  - incident => état nominal
+  - rejouer doc vieille et pas clair
+  - aucune garantie de fonctionner
+
 --
 
 ### Solutions Eventuelles
@@ -40,6 +96,14 @@ NOTES:
 - GPO / Scripts <!-- .element: class="fragment" -->
 - Infrastructure As Code <!-- .element: class="fragment" -->
 - Containerisation <!-- .element: class="fragment" -->
+
+NOTES:
+
+autres projet ont essayé
+
+* difficilement scalable + pas assez robuste + pas normalisée => beaucoup d'erreur
+* plus scalable MAIS "état virtuel" => modif "à la main" => idempotence
+* pas applicable partout + pb des infrastructures physiques
 
 --
 
@@ -51,6 +115,16 @@ NOTES:
 - Reproductibilité / Idempotance <!-- .element: class="fragment" -->
 - Bare Metal & Env. Virtualisé <!-- .element: class="fragment" -->
 
+NOTES:
+
+peut-on faire mieux => à quoi ressemble système parfait ?
+
+* automatisable => facile => à l'échelle => redéployer pour panne.
+* code facilement auditable et versionnable
+* faire pareil qu'autre système => veux pas limité par la technos
+* garantir reproductibilité + idempotence des déploiements et mises à jour.
+* fonctionne sur environnements physiques ou virtualisés.
+
 ---
 
 ## Fonctionnement
@@ -61,11 +135,38 @@ NOTES:
 
 ![](dist/custom/phd.png)
 
+NOTES:
+
+* publication => Eelco Dolstra => 2006 => problèmes des PM traditionnels:
+  - difficultée à gérer dépendances
+  - sensibilité aux changements "cassants".
+* Pour thèse => présente nouvelle approche => inspiré des languages fonctionnels
+* comme languages fonctionnels pur:
+  - isolation des packages entre eux
+  - imutabilité
+  - identification automatique de dépendances
+* package + propriété = DÉRIVATION
+
 --
 
 ### <span class="overline">Package</span> <span class="redify">Derivations<span>
 
 ![](dist/custom/drake.png)
+
+NOTES:
+
+* Il y en à ici qui ont déjà fait du packaging sous debian ?
+* tous le respect que je dois à distribution comme débian
+* packaging => enfer
+* dpkg => aussi puissant qu'il est compliqué à prendre en main
+* l'historique énorme => ne rend pas service.
+* principe de dérivation =>  oublier
+  - les packages obsures
+  - qui mélangent système de build inconnus
+  - scriptes esotériques
+  - variables d'environnement mystiques
+* définition de dérivation => syntaxe clair => accessible => novices.
+* dérivation => déterministe => annonce dépendances.
 
 --
 
@@ -77,11 +178,27 @@ NOTES:
       DERIVATION = hash(hash(SRC) + hash(DEPENDANCES))
 ```
 
+NOTES:
+
+* dérivation => représenté par hash => intégrité
+* également dérivations dont dépent => pour build => ou execution
+* références les unes entre les autres => utilisant hash
+* oublier => collision de nom => oeuvre d'un attaquant => ou simple accident.
+* toutes stocké dans `/nix/store` => j'appellerais le nix store
+
 --
 
 ### Mirroir mon beau mirroir...
 
 ![](dist/custom/github.png)
+
+NOTES:
+
+* dérivations simples à coder
+* incroyable communauté => écrite + 80 000 dérivations
+* installer tous vos packages préféré
+* équivalent de mirroir APT => github
+* nouveau mirroir => aussi simple que => fork
 
 --
 
@@ -99,7 +216,12 @@ gcc (GCC) 11.3.0
 ```
 
 NOTES:
-![](dist/custom/nixlinks.png)
+
+* encore un peu abstrait
+* pointe vers un 'nix-profile'
+* nix-profile => lien vers dérivation
+* dérivation => liens vers nix store
+* nixos = PM purement fonctionnel + liens + systemd
 
 ---
 
@@ -114,6 +236,12 @@ NOTES:
 ├── Makefile
 └── template.env
 ```
+
+NOTES:
+
+* tourne => docker compose
+* historiquement => debian ou centos
+* passer sous nixos => philosophie "nix"
 
 --
 
@@ -151,6 +279,21 @@ derivation {
 }
 ```
 
+NOTES:
+
+* Prémière étape => écrire dérivation
+* debian vous jouiez la commande suivante
+  - docker compose 
+  - -p => nom projet
+  - -f => chemin fichier yaml
+* coeur de dérivation => nom => participe hash 
+* sources du packet => fetchfromgithub => builtin => dépôt => docker-compose.yaml
+* résultat dérivation => script
+* $out => variable => chemin => nix store
+* mkdir chmod docker => objet pkgs => définis dépendances => replacer par path store
+
+dérivation docker-nextcloud => 30aine de lignes
+
 --
 
 ### Configurations
@@ -170,6 +313,12 @@ in {
   system.stateVersion = "22.05";
 }
 ```
+
+NOTES:
+
+* plus dure est déjà fait => reste configurer correctement système
+* fichier => dans /etc/nixos/configuration.nix
+* voyez => squelette => ajouter bloques => pour décrire système
 
 --
 
@@ -198,6 +347,15 @@ systemd.services.nextcloud = {
 
 ```
 
+NOTES:
+
+* ajoute dérivation => aux sources autorisés => fichiers "release" debian
+* rend accessible à l'entièreté du système
+* enfin, on défini un service systemd
+* qui sera déployé au démarrage
+* qui execute le script généré par notre dérivation
+* et le tous en donnant accès par exemlpe à secrets
+
 --
 
 ### Configuration - Docker
@@ -218,6 +376,11 @@ systemd.services.nextcloud = {
   };
 ```
 
+NOTES:
+
+Pour l'administration, il est toujours possible d'activer ssh et de
+configurer le service par la même occasion, en 5 lignes
+
 --
 
 ### Configuration - Réseau
@@ -233,6 +396,12 @@ networking = {
   };
 };
 ```
+
+NOTES:
+
+* La configuration réseau tiens en 10 lignes
+* firewall local => pas cli IPTABLE
+* quand c'est aussi simple d'activer un firewall local => plus excuse
 
 --
 
@@ -251,6 +420,13 @@ users.users = {
 };
 ```
 
+NOTES:
+
+* enfin, vous voudrez ajouter un ou plusieurs administrateur à votre système
+* les ajouter dans des groupes
+* leur installer des application isollées les uns des autres
+* configurer leurs clefs SSH
+
 --
 
 ## Résultats
@@ -265,6 +441,13 @@ users.users = {
  147 total
 ```
 
+NOTES:
+
+* dérivation => 30aine de ligne
+* 40aine de ligne généré automatiquement à l'installation du système
+* pour la gestion des spécificités materiels, du bootloader et autre
+* configuration globale ne dépasse pas les 70 lignes
+
 --
 
 ### Le système parfait existe t-il ?
@@ -275,9 +458,23 @@ users.users = {
 - Liberté de configuration <!-- .element: class="fragment" -->
 - Bare Metal & Env. Virtualisé <!-- .element: class="fragment" -->
 
+NOTES:
+
+* bref, en moins de 150 lignes de configuration
+* écrite dans un language limpide,
+* vous êtes en mesure de déployer
+* un système de façon reproductible
+* en allant jusqu'a définir un service systèmd spécifique pour votre application
+* le tous déployable sur des machines virtuelles ou physiques
+
 ---
 
 ## Synthèse
+
+NOTES:
+
+* que demander de plus me diriez vous ?
+* le système offre beaucoup d'autres garanties
 
 --
 
@@ -292,6 +489,11 @@ $ echo $PATH | tr ':' '\n'
   /nix/var/nix/profiles/default/bin
   /run/current-system/sw/bin
 ```
+
+NOTES:
+
+* chaque logiciel n'à accès qu'a ses dépendances
+* chaque environnement utilisateur est isolé des autres
 
 --
 
@@ -313,6 +515,36 @@ copying path '/nix/store/x8m...1kw-bash-interactive-5.1-p16-dev' from 'https://c
 /nix/store/pby...ipx-libpcap-1.10.1/lib
 ```
 
+NOTES:
+
+L'utilisation d'un système de déploiement prédictible et isolé permet
+de mettre au point une fonctionnalités inutile en production mais
+très puissante pour les dévellopeurs : les shell nix
+
+pensez, environnement virtuel python mais en beaucoup mieux
+
+les utilisateurs de nix peuvent créer des fichiers shell.nix pour leurs projets
+dans lesquels ont peut définir les packets à installer pour faire fonctionner
+le projet mais aussi éventuellement des variables d'environnement, des alias de
+commande, et même des script bash à executer au démarrage du shell
+
+ça ressemble à quoi ?
+
+ici par exemple j'ai un projet qui utilise la lib pcap mais comme j'utilise
+plusieurs version de cette lib j'ai besoin de définir son emplacement exacte :
+
+CLICK
+
+avant l'execution de l'environnement, la variable d'existe pas
+
+CLICK 
+
+après sont execution, notre shell point vers un nouveau nix-profile
+
+CLICK
+
+et le shell qu'on obtiens est bien chargé avec la variable voulue
+
 --
 
 ### Bonus - Root en readonly
@@ -331,6 +563,18 @@ $ sudo chmod +w /nix/store/$DERIVATION/etc/ssh/sshd_config
 chmod: modification des droits [...] Read-only file system
 ```
 
+NOTES:
+
+* FS root => readonly => en particulier le store
+* attaquant => privesc => backdoor => openssh
+  - emplacement openssh
+  - file readonly
+  - filesystem readonly
+* seul moyen => réécrir un fichier nix 
+  - doit correspondre au système
+  - possible mais => augment complexité  attaques système
+* facile à supperviser
+
 --
 
 ### Bonus - Rollback
@@ -348,6 +592,12 @@ options init=/nix/store/4jx...17f-nixos-system-demo-22.05.4120.16f4e04658c/init 
 machine-id b7bfdd5f273b49c6a30c4e26e84c8f21
 ```
 
+NOTES:
+
+* nixos => les erreurs coutent moins cher
+* reboot => bootloader proposera entrée => précédents état de la configuration
+* exemple: entrée de boot => point vers dérivation
+
 -- 
 
 ### Les inconvenients
@@ -358,22 +608,85 @@ machine-id b7bfdd5f273b49c6a30c4e26e84c8f21
 - Systemd centric <!-- .element: class="fragment" -->
 - Adoption = changement d'OS <!-- .element: class="fragment" -->
 
+NOTES:
+
+* flexibilité => /etc/hosts => prix à payer pour garantie d'intégrité serveurs
+
+* possibilités:
+  - d'installer des version concurrente de plusieurs librairies
+  - d'avoir des environnements isolés 
+  - et de pouvoir rollback quand ont veux
+* nécessite => code en doublons dans le nix store
+* garbage collector très efficace => supprimer les D des N dernières générations
+
+CLICK
+
+vous l'avez peut-être vue tout à l'heure sur ma capture d'écran du dépôt github
+
+de nixos mais il y à un peu d'embouteillage dans les issues
+
+cette semaine je comptais :
+
+* plus de 5000 issues
+* et plus de 4000 pull request en attente
+
+si c'est une preuve de la popularité croissante du projet
+
+ça dénote aussi d'un manque de correlation entre la facilité à écrire des
+dérivations et les moyens humains qui peuvent être déployés pour faire la revue
+des codes
+
+si le projet vous intéresse, c'est ici qu'on à besoin de vous
+
+CLICK
+
+si systemd vous donne des allergies, nixos n'est pas pour vous, comme on l'a vu
+au dessus il s'appuie grandement sur ce système d'init pour avoir un controle
+très fin sur les services qui sont executés
+
+il existe bien des
+projet de distribution équivalentes sans systèmd mais ils sont au stade
+pré-embryonnaires
+
+
+CLICK
+
+Enfin, une dernière chose que l'on pourrait critiquer à propos de nixos c'est
+sont manque d'adaptabilité aux environnements techniques en place, la ou ansible
+peut être utilisé
+du jour au lendemin pour déployer de l'infrastructure en s'adaptant à n'importe
+quel distribution, nixos nécessite de nouvelles installation
+
+cependant, si je me suis concentré sur nixos parceque je pense que c'est vraiment
+la ou le projet dépoie tous son potentiel, n'oubliez pas que nix
+est avant tout un gestionaire de packet et que celui-ci peut être installé sur
+n'importe quel distribution linux
+
+vous pouvez déjà commencer à utiliser vos premières dérivations nix en prod
+avant même de passer sur nixos
+
+CLICK
+
 --
 
 ### Conclusion
 
-* https://github.com/0b11stan/hackitn-nixos-slideshow
-* https://github.com/0b11stan/hackitn-nixos-demo
-
-<!--
-<img class="column" src="dist/custom/nixops.png" >
-<img class="column" src="dist/custom/hydra.png" >
-<img style="margin: 0" src="dist/custom/home-manager.png" >-->
-
+<div class="column">
+  <img src="dist/custom/slideshow.png">
+  <p class="subtitle">https://github.com/0b11stan/hackitn-nixos-slideshow</p>
+</div>
+<div class="column">
+  <img src="dist/custom/demo.png" >
+  <p class="subtitle">https://github.com/0b11stan/hackitn-nixos-demo</p>
+</div>
 
 NOTES:
 
-Parler du rollback, de la sécu
+Très bonne doc et plein de projets subsidiaires : home-manager, flakes, hydra, nixops, ...
+
+encourage à tester
+
+Passez au stand capgemini pour questions
 
 ---
 <!-- .slide: data-background="#ffffff" -->

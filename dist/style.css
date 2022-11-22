@@ -21,8 +21,13 @@
 
 .column {
   display: inline-block;
-  width: 49%;
-  margin: 0 !important;
+  width: 44%;
+  margin: 2% !important;
+}
+
+.column > .subtitle {
+  font-family: monospace;
+  font-size: 12px;
 }
 
 img {
