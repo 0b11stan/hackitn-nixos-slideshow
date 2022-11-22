@@ -11,10 +11,15 @@ _Tristan Pinaudeau @ <span class="highlight">Capgemini</span>_
 * <span class="highlight">SRE</span> à Cdiscount
 * <span class="highlight">PENTESTER</span> à Capgemini
 
+NOTES:
 
 ---
 
 ## Introduction
+
+NOTES:
+
+exposer le plan
 
 --
 
@@ -25,6 +30,8 @@ _Tristan Pinaudeau @ <span class="highlight">Capgemini</span>_
 - Gestion chaotique des patchs <!-- .element: class="fragment" -->
 - Obscurité à l'audit <!-- .element: class="fragment" -->
 - Automatisation complexe <!-- .element: class="fragment" -->
+
+NOTES:
 
 --
 
@@ -62,15 +69,19 @@ _Tristan Pinaudeau @ <span class="highlight">Capgemini</span>_
 
 --
 
-### Mirroir mon beau mirroir...
-
-![](dist/custom/github.png)
-
---
-
 ### Nix Store
 
 ![](dist/custom/nixstore.png)
+
+```
+      DERIVATION = hash(hash(SRC) + hash(DEPENDANCES))
+```
+
+--
+
+### Mirroir mon beau mirroir...
+
+![](dist/custom/github.png)
 
 --
 
@@ -108,10 +119,9 @@ NOTES:
 
 ### "Talk is cheap, ..."
 
-```nix [4-6|9|13-18|20-29]
+```nix [5|3|4|8|12-17|19-28|25|23,26]
 {pkgs, fetchFromGitHub, ...}: 
 let
-  core = "${pkgs.coreutils}/bin";
   argProjectName = "--project-name '$name'";
   argComposeFile = "--file '$src/docker-compose.yml'";
   dockercmd = "compose ${argProjectName} ${argComposeFile} up -d";
@@ -132,10 +142,10 @@ derivation {
 
   args = [ "-c"
     ''
-      ${core}/mkdir $out \
+      ${pkgs.coreutils}/bin/mkdir $out \
         && echo "${pkgs.docker}/bin/docker ${dockercmd}" \
         > $out/$name.sh \
-        && ${core}/chmod +x $out/$name.sh
+        && ${pkgs.coreutils}/bin/chmod +x $out/$name.sh
     ''
   ];
 }
@@ -146,6 +156,8 @@ derivation {
 ### Configurations
 
 ```nix
+          ###   /etc/nixos/configuration.nix   ###
+
 {config, lib, pkgs, ...}:
 let
   secretMySQLRootPassword = builtins.getEnv "MYSQL_ROOT_PASSWORD";
@@ -163,7 +175,7 @@ in {
 
 ### Configuration - Nextcloud
 
-```nix [1-3|5|7-19]
+```nix [1-3|5|7-19|10-12|14|15-18]
 nixpkgs.overlays = [(self: super: {
   docker-nextcloud = super.callPackage ./docker-nextcloud.nix {};
 })];
@@ -210,40 +222,40 @@ systemd.services.nextcloud = {
 
 ### Configuration - Réseau
 
-```nix
-  networking = {
-    hostName = "nixos-harden";
-    networkmanager.enable = true;
-    useDHCP = lib.mkDefault true;
-    firewall = {
-      enable = true;
-      allowedTCPPorts = [8080 22];
-    };
+```nix [2-4|7]
+networking = {
+  hostName = "nixos-harden";
+  networkmanager.enable = true;
+  useDHCP = true;
+  firewall = {
+    enable = true;
+    allowedTCPPorts = [8080 22];
   };
+};
 ```
 
 --
 
 ### Configuration - User
 
-```nix
-  users.users = {
-    tristan = {
-      isNormalUser = true;
-      extraGroups = ["wheel" "docker"];
-      packages = [pkgs.neovim];
-      openssh.authorizedKeys.keyFiles = [
-        ./ssh-keys/silver-hp.pub
-      ];
-    };
+```nix [2|4|5|6-8]
+users.users = {
+  tristan = {
+    isNormalUser = true;
+    extraGroups = ["wheel" "docker"];
+    packages = [pkgs.neovim];
+    openssh.authorizedKeys.keyFiles = [
+      ./ssh-keys/silver-hp.pub
+    ];
   };
+};
 ```
 
 --
 
 ## Résultats
 
-```txt
+```txt [4|5|3]
 > wc -l src/*.nix src/*.sh
 
   69 src/configuration.nix
@@ -252,6 +264,16 @@ systemd.services.nextcloud = {
    2 src/init.sh
  147 total
 ```
+
+--
+
+### Le système parfait existe t-il ?
+
+- Versionnable <!-- .element: class="fragment" -->
+- Automatisable <!-- .element: class="fragment" -->
+- Reproductibilité / Idempotance <!-- .element: class="fragment" -->
+- Liberté de configuration <!-- .element: class="fragment" -->
+- Bare Metal & Env. Virtualisé <!-- .element: class="fragment" -->
 
 ---
 
@@ -273,9 +295,9 @@ $ echo $PATH | tr ':' '\n'
 
 --
 
-### Bonus - Nix shell
+### SUPPRIMER ? Bonus - Nix shell
 
-```txt [1-3|5|7-10|12-13]
+```txt [|1-3|5|7-10|12-13]
 [tristan@demo:rustproject]$ tail -n 2 shell.nix
   LIBPCAP_LIBDIR = "${pkgs.libpcap}/lib";
 }
@@ -284,14 +306,14 @@ $ echo $PATH | tr ':' '\n'
 
 [tristan@demo:rustproject]$ nix-shell
 this path will be fetched (0.06 MiB download, 0.30 MiB unpacked):
-  /nix/store/x8mymrkpsmpwyvqssjbwsq851kscf1kw-bash-interactive-5.1-p16-dev
-copying path '/nix/store/x8mymrkpsmpwyvqssjbwsq851kscf1kw-bash-interactive-5.1-p16-dev' from 'https://cache.nixos.org'...
+  /nix/store/x8m...1kw-bash-interactive-5.1-p16-dev
+copying path '/nix/store/x8m...1kw-bash-interactive-5.1-p16-dev' from 'https://cache.nixos.org'...
 
 [nix-shell:rustproject]$ echo $LIBPCAP_LIBDIR
 /nix/store/pby...ipx-libpcap-1.10.1/lib
 ```
 
--- 
+--
 
 ### Bonus - Root en readonly
 
@@ -311,16 +333,37 @@ chmod: modification des droits [...] Read-only file system
 
 --
 
+### Bonus - Rollback
+
+```txt [1,2|9]
+[tristan@demo:~]$ ls /boot/loader/entries/ | head -n 2
+nixos-generation-131.conf  nixos-generation-132.conf
+
+[tristan@demo:~]$ cat /boot/.../nixos-generation-131.conf
+title NixOS
+version Generation 131 NixOS 22.05.4120.16f4e04658c, Linux Kernel 5.15.78, Built on 2022-11-16
+linux /efi/nixos/rax...xdm-linux-5.15.78-bzImage.efi
+initrd /efi/nixos/846...sl3-initrd-linux-5.15.78-initrd.efi
+options init=/nix/store/4jx...17f-nixos-system-demo-22.05.4120.16f4e04658c/init loglevel=4
+machine-id b7bfdd5f273b49c6a30c4e26e84c8f21
+```
+
+-- 
+
 ### Les inconvenients
 
 - Moins "Flexible" <!-- .element: class="fragment" -->
 - Croissances du Nix store <!-- .element: class="fragment" -->
 - Surcharge de Nixpkgs <!-- .element: class="fragment" -->
+- Systemd centric <!-- .element: class="fragment" -->
 - Adoption = changement d'OS <!-- .element: class="fragment" -->
 
 --
 
 ### Conclusion
+
+* https://github.com/0b11stan/hackitn-nixos-slideshow
+* https://github.com/0b11stan/hackitn-nixos-demo
 
 <!--
 <img class="column" src="dist/custom/nixops.png" >
