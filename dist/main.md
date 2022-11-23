@@ -497,56 +497,6 @@ NOTES:
 
 --
 
-### SUPPRIMER ? Bonus - Nix shell
-
-```txt [|1-3|5|7-10|12-13]
-[tristan@demo:rustproject]$ tail -n 2 shell.nix
-  LIBPCAP_LIBDIR = "${pkgs.libpcap}/lib";
-}
-
-[tristan@demo:rustproject]$ echo $LIBPCAP_LIBDIR
-
-[tristan@demo:rustproject]$ nix-shell
-this path will be fetched (0.06 MiB download, 0.30 MiB unpacked):
-  /nix/store/x8m...1kw-bash-interactive-5.1-p16-dev
-copying path '/nix/store/x8m...1kw-bash-interactive-5.1-p16-dev' from 'https://cache.nixos.org'...
-
-[nix-shell:rustproject]$ echo $LIBPCAP_LIBDIR
-/nix/store/pby...ipx-libpcap-1.10.1/lib
-```
-
-NOTES:
-
-L'utilisation d'un système de déploiement prédictible et isolé permet
-de mettre au point une fonctionnalités inutile en production mais
-très puissante pour les dévellopeurs : les shell nix
-
-pensez, environnement virtuel python mais en beaucoup mieux
-
-les utilisateurs de nix peuvent créer des fichiers shell.nix pour leurs projets
-dans lesquels ont peut définir les packets à installer pour faire fonctionner
-le projet mais aussi éventuellement des variables d'environnement, des alias de
-commande, et même des script bash à executer au démarrage du shell
-
-ça ressemble à quoi ?
-
-ici par exemple j'ai un projet qui utilise la lib pcap mais comme j'utilise
-plusieurs version de cette lib j'ai besoin de définir son emplacement exacte :
-
-CLICK
-
-avant l'execution de l'environnement, la variable d'existe pas
-
-CLICK 
-
-après sont execution, notre shell point vers un nouveau nix-profile
-
-CLICK
-
-et le shell qu'on obtiens est bien chargé avec la variable voulue
-
---
-
 ### Bonus - Root en readonly
 
 ```txt [1|3-7|9-11]
