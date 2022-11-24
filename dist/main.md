@@ -554,9 +554,9 @@ NOTES:
 
 - Moins "Flexible" <!-- .element: class="fragment" -->
 - Croissances du Nix store <!-- .element: class="fragment" -->
-- Surcharge de Nixpkgs <!-- .element: class="fragment" -->
 - Systemd centric <!-- .element: class="fragment" -->
 - Adoption = changement d'OS <!-- .element: class="fragment" -->
+- Surcharge de Nixpkgs <!-- .element: class="fragment" -->
 
 NOTES:
 
